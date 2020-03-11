@@ -35,21 +35,41 @@ def PutPrice(S , K, T, sig, r):
     t2 = S
     t3 = CallPrice(S, K, T, sig , r)
     return t1-t2+t3 
-    
+
+def Ndash(x):
+    return 1/sqrt(2*pi)*exp(-x**2/2)
+
 #Call Greeks
-def c_delta(S,K,T,r,sigma):
-    return norm.cdf(d1(S,K,T,r,sigma))
+def c_delta(S, K, T, sig, r):
+    return norm.cdf(d1(S, K, T, sig, r))
 
-def c_gamma(S,K,T,r,sigma):
-    return norm.pdf(d1(S,K,T,r,sigma))/(S*sigma*sqrt(T))
+def c_theta(S, K, T, sig, r):
+    t1 = (S*norm.pdf(d1(S, K, T, sig, r))*sig)/(2*sqrt(T))
+    t2 = r*K*exp(-r*T)*norm.cdf(d2(S, K, T, sig, r))
+    return (-t1 - t2 )/254.0
 
-def c_vega(S,K,T,r,sigma):
-    return 0.01*(S*norm.pdf(d1(S,K,T,r,sigma))*sqrt(T))
+def c_gamma(S, K, T, sig, r):
+    return norm.pdf(d1(S, K, T, sig, r))/(S*sig*sqrt(T))
 
-def c_theta(S,K,T,r,sigma):
-    return 0.01*(-(S*norm.pdf(d1(S,K,T,r,sigma))*sigma)/(2*sqrt(T)) - r*K*exp(-r*T)*norm.cdf(d2(S,K,T,r,sigma)))
+def c_vega(S, K, T, sig, r):
+    return (S*norm.pdf(d1(S, K, T, sig, r))*sqrt(T))
+    #Per CDay or Per TDay
 
 
 #Put Greeks
+def p_delta(S, K, T, sig, r):
+    return norm.cdf(-d1(S, K, T, sig, r)) - 1
+
+def p_theta(S, K, T, sig, r):
+    t1 = (S*norm.pdf(d1(S, K, T, sig, r))*sig)/(2*sqrt(T))
+    t2 = r*K*exp(-r*T)*norm.cdf(d2(S, K, T, sig, r))
+    return (-t1 + t2 )/254.0
+
+def p_gamma(S, K, T, sig, r):
+    return norm.pdf(d1(S, K, T, sig, r))/(S*sig*sqrt(T))
+
+def p_vega(S, K, T, sig, r):
+    return (S*norm.pdf(d1(S, K, T, sig, r))*sqrt(T))
+    #Per Cday or per Tday
 
 
