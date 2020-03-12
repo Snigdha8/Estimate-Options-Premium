@@ -1,8 +1,13 @@
 import csv
+import numpy as np
+import pandas as pd
+from pandas import DataFrame
+from math import log , exp , pi , sqrt 
+from scipy.stats import norm
 with open('OPTIDX_NIFTY_CE_01-Feb-2020_TO_27-Mar-2020.csv', encoding="utf8", errors='ignore') as file:
     reader = csv.reader(x.replace('\0', '') for x in file)
     for row in reader:
-        print(row)                               --> works
+        print(row)                               
        
 import csv
 from math import log , exp , pi , sqrt
