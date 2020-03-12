@@ -77,19 +77,19 @@ def numOfDays(date1, date2):
 
 columns = defaultdict(list) # each value in each column is appended to a list
 
-with open('OPTIDX_NIFTY_CE_01-Feb-2020_TO_27-Mar-2020.csv', encoding="utf8", errors='ignore') as file:
+with open('MW-FO-nse50_opt-12-Mar-2020.csv', encoding="utf8", errors='ignore') as file:
     reader = csv.DictReader(x.replace('\0', '') for x in file) # read rows into a dictionary format
     for row in reader: # read a row as {column1: value1, column2: value2,...}
         for (k,v) in row.items(): # go over each column name and value
             columns[k].append(v) # append the value into the appropriate list
                                  # based on column name k
 
-print(columns['Turnover in Lacs'])
+#print(columns['Turnover in Lacs'])
 print("\n")
 print(columns['Date'])
 
-dat1 = columns['Date'][0]
-dat2 = columns['Expiry'][0]
+dat1 = "12-Mar-2020"
+dat2 = columns['EXPIRY DATE'][0]
 
 dat1_day = dat1[0]+dat1[1]
 print(int(dat1_day))
@@ -112,8 +112,9 @@ t = numOfDays(date1, date2)
 print(t, "days")
 t = t/31
 
-strike_price = columns['Strike Price'][0]
+strike_price = columns['STRIKE PRICE'][0]
 #print(int(strike_price))
+stock_price = int(input('Enter Stock Price'))
 ans = d1(10000,int(strike_price),t,56.87,7)
 print(ans)
 print("is d1")
