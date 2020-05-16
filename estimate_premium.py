@@ -10,6 +10,12 @@ from recordtype import recordtype
 from scipy.interpolate import make_interp_spline, BSpline
 import matplotlib.pyplot as plt
 import pprint
+
+
+
+
+
+
 ###############
 def d1(S, K, T, sig, r ):
     t1 = log(S/K)
@@ -33,6 +39,7 @@ def PutPrice(S , K, T, sig, r):
     t2 = S*norm.cdf(-1*d1(S, K, T, sig, r))
     return exp(-r*T)(t1-t2)
 
+volatility = float(input("Initial Volaitilty %"))/100.0
 
 #Call Greeks
 def c_delta(S, K, T, sig, r):
@@ -113,18 +120,18 @@ def call_greeks(database , fname):
     strike_list = []
     new_premium_list = []
     print("CALL OPTIONS USING GREEKS") 
-    change_in_spot_price = float(input("Enter Change in the Estimated change in Spot Price of Underlying"))
-    change_in_volatility = float(input("Enter Change  in Volatility"))
+    change_in_spot_price = float(input("Enter Change in the Estimated change in Spot Price of Underlying\n"))
+    change_in_volatility = float(input("Enter Change in % Volatility(+/-)\n"))/100.0
     for d in database:
         num_remaining_days = d.num_remaining_days
         t = d.t
         spot_price = d.spot_price
         
-        gamma = c_gamma(spot_price,int(float(d.strike_price)),t,0.51,0.07)
+        gamma = c_gamma(spot_price,int(float(d.strike_price)) , t , volatility , 0.07 )
         d.gamma = gamma
         print("Gamma is " , gamma)
 		
-        old_delta = c_delta(spot_price,int(float(d.strike_price)),t,0.51,0.07)
+        old_delta = c_delta(spot_price,int(float(d.strike_price)) , t , volatility , 0.07)
         d.old_delta = old_delta
         print("Old Delta is " , old_delta) 
 		
@@ -132,15 +139,21 @@ def call_greeks(database , fname):
         print("New Delta is " , new_delta)
         d.new_delta = new_delta
 		
-        theta = c_theta(spot_price,int(float(d.strike_price)),t,0.51,0.07)
+        theta = c_theta(spot_price,int(float(d.strike_price)), t , volatility , 0.07 )
         print("Theta is " , theta)
-        d.theta = theta
+        d.theta = theta 
 		
-        new_premium = int(float(d.old_premium)) + new_delta*change_in_spot_price
-        print("Old premium is " , d.old_premium)
-        print("(After Gamma effect) New premium is " , new_premium)
-        new_premium = new_premium + num_remaining_days*theta #addition cuz theta already has a negative value
+        vega = c_vega(spot_price,int(float(d.strike_price)), t , volatility , 0.07 )
+        vega_effect = vega * change_in_volatility
+        
+        
+        new_premium = int(float(d.old_premium)) + ((old_delta+new_delta)/2.0)*change_in_spot_price
+        #print("Old premium is " , d.old_premium)
+        #print("(After Gamma effect) New premium is " , new_premium)
+        new_premium = new_premium + num_remaining_days*theta  + vega_effect#addition cuz theta already has a negative value
 		#theta is coming 2 digits hence I think it must be divided by 100
+        if new_premium < 0:
+            new_premium = 0
         print("(After Theta effect) New premium is " , new_premium)
         d.new_premium = new_premium
         
