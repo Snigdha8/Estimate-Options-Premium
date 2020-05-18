@@ -19,8 +19,9 @@ def get_files(folder):
     files = os.listdir(path) 
     return files
 
-
-
+volatility = float(input("Initial Volaitilty %")) / 100.0
+spotp = float(input("Initial Spot Price\n"))
+print(spotp)
 
 
 ###############
@@ -46,7 +47,7 @@ def PutPrice(S, K, T, sig, r):
 	t2 = S * norm.cdf(-1 * d1(S, K, T, sig, r))
 	return exp(-r * T)(t1 - t2)
 
-volatility = float(input("Initial Volaitilty %")) / 100.0
+
 
 # Call Greeks
 def c_delta(S, K, T, sig, r):
@@ -103,55 +104,115 @@ def calculate_t(current_date, expiry_date):
        	t = numOfDays(date1, date2)
        	return (t)
 
-def plot_multiple():
-    """files = []
-    files = get_files("Data")
-    print(files)
-    databases = []
-    #c_databases = []
-    #p_databases = []
-    for file in files:
-        db,otype = process_options(file , 9100)
-        databases.append(db)
+def plot_init_final(files):
+    spot_price = spotp
+    processed_files = get_files("Graph")
+    for pf in processed_files:
+        #print(pf[-4:])
+        if pf[-4:] == ".jpg":
+            processed_files.remove(pf)
     
-    for d,f in zip(databases,files):
-        if f[5] == "c":
-            call_greeks(d , f)
+    for f,pf in zip(files , processed_files):
+        df = pd.read_csv('Data//'+f ,sep = ',', header = None, skiprows = 1)
+        before_matrix = df.as_matrix()
+        ix = before_matrix[:,0] # Strike Price
+        iy = before_matrix[:,1] #Premium
+        
+        
+        df = pd.read_csv('Graph//'+pf ,sep = ',', header = None, skiprows = 1)
+        after_matrix = df.as_matrix()
+        fx = after_matrix[:,0] # Strike Price
+        fy = after_matrix[:,1] #Premium
+        
+        
+        if pf[5] == "c":
+            fig = plt.figure()
+            for x1, x2, y1, y2 in zip(ix, ix[1: ], iy, iy[1: ]):
+            	if x1 > spot_price:
+            		plt.plot([x1, x2], [y1, y2], 'y', linestyle = '--')
+            	elif x1 < spot_price:
+            		plt.plot([x1, x2], [y1, y2], 'c' , linestyle = '--' )
+            	else:
+            		plt.plot([x1, x2], [y1, y2], 'b', marker = '.' )
+                    
+            for x1, x2, y1, y2 in zip(fx, fx[1: ], fy, fy[1: ]):
+            	if x1 > spot_price:
+            		plt.plot([x1, x2], [y1, y2], 'r', linestyle = '-')
+            	elif x1 < spot_price:
+            		plt.plot([x1, x2], [y1, y2], 'g' , linestyle = '-' )
+            	else:
+            		plt.plot([x1, x2], [y1, y2], 'b', marker = '.' )
+            fig.suptitle(f, fontsize=16)
+            plt.xlabel('strike price', fontsize = 14)
+            plt.ylabel('new premium', fontsize = 14)
+            fig.savefig('Graph//'+f +'Before-After' + '.jpg')
+        
         else:
-            put_greeks(d , f)
-    #print(c_databases)
-    """
+            fig = plt.figure()
+            for x1, x2, y1, y2 in zip(ix, ix[1: ], iy, iy[1: ]):
+                if x1 > spot_price:
+                    plt.plot([x1, x2], [y1, y2], 'c',linestyle = '--')
+                elif x1 < spot_price:
+                    plt.plot([x1, x2], [y1, y2], 'y',linestyle = '--')
+                else:
+                    plt.plot([x1, x2], [y1, y2], 'b', marker = 'o')
+            
+            for x1, x2, y1, y2 in zip(fx, fx[1: ], fy, fy[1: ]):
+                if x1 > spot_price:
+                    plt.plot([x1, x2], [y1, y2], 'g',linestyle = '-')
+                elif x1 < spot_price:
+                    plt.plot([x1, x2], [y1, y2], 'r',linestyle = '-')
+                else:
+                    plt.plot([x1, x2], [y1, y2], 'b', marker = 'o')
+                    
+            fig.suptitle(f, fontsize=16)
+            plt.xlabel('strike price', fontsize = 14)
+            plt.ylabel('new premium', fontsize = 14)
+            fig.savefig('Graph//'+f +'Before-After' + '.jpg')
+        
+        
+        
+
+def plot_multiple(files):
+    
     processed_files =  get_files("Graph")
-    print(processed_files)
-    spot_price = 9095
+    #print(processed_files)
+    spot_price = spotp
     graph_data = []
     for pfiles in processed_files:
         pf = pfiles[0:-4]
         pfname = "Graph//" + pf + ".csv"
-        print(pf)
+        #print(pf)
         df = pd.read_csv(pfname ,sep = ',', header = None, skiprows = 1)
         numpy_matrix = df.as_matrix()
+        x = numpy_matrix[:,0] # Strike Price
+        y = numpy_matrix[:,1] #Premium
         
-        y = numpy_matrix[:,1]
-        x = numpy_matrix[:,0]
         graph_data.append([x,y])
-        print(pf[5])
+        #fig = plt.figure()
+        #print(spot_price)
+        
         if pf[5] == "c":
             for x1, x2, y1, y2 in zip(x, x[1: ], y, y[1: ]):
             	if x1 > spot_price:
-            		plt.plot([x1, x2], [y1, y2], 'r')
+            		plt.plot([x1, x2], [y1, y2], 'r', linestyle = '--')
             	elif x1 < spot_price:
-            		plt.plot([x1, x2], [y1, y2], 'g')
+            		plt.plot([x1, x2], [y1, y2], 'g' , linestyle = '--' )
             	else:
-            		plt.plot([x1, x2], [y1, y2], 'b', marker = '.')
+            		plt.plot([x1, x2], [y1, y2], 'b', marker = '.' )
         else:
         	for x1, x2, y1, y2 in zip(x, x[1: ], y, y[1: ]):
         		if x1 > spot_price:
-        			plt.plot([x1, x2], [y1, y2], 'g')
+        			plt.plot([x1, x2], [y1, y2], 'c',linestyle = '-')
         		elif x1 < spot_price:
-        			plt.plot([x1, x2], [y1, y2], 'r')
+        			plt.plot([x1, x2], [y1, y2], 'y',linestyle = '-')
         		else:
         			plt.plot([x1, x2], [y1, y2], 'b', marker = 'o')
+                    
+        plt.xlabel('strike price', fontsize = 14)
+        plt.ylabel('new premium', fontsize = 14)
+        plt.savefig('Graph//'+pf + '.jpg')
+        
             
         
 
@@ -192,14 +253,12 @@ def plot_output(file_name, option_type):
         plt.show()
 
 
-def call_greeks(database, fname):
+def call_greeks(database, fname , change_in_spot_price , change_in_volatility):
         strike_list = []
         new_premium_list = []
         v = volatility
         
         print("CALL OPTIONS USING GREEKS")
-        change_in_spot_price = float(input("Enter the Estimated CHANGE in Spot Price of Underlying\n"))
-        change_in_volatility = float(input("Enter Change in % Volatility(+/-)\n")) / 100.0
         for d in database:
             #print(d)
             #print(d.t)
@@ -238,18 +297,16 @@ def call_greeks(database, fname):
         fname1 = fname[0: -4]
         file_name =  "./"+fname1 + "_output.csv"
         df.to_csv(r'Graph//'+file_name, sep = ',', index = False)
-        option_type = fname[6:10]
+        #option_type = fname[6:10]
         #plot_output(file_name, option_type)
 
-def put_greeks(database, fname):
+def put_greeks(database, fname , change_in_spot_price , change_in_volatility):
 
         strike_list = []
         new_premium_list = []
         v = volatility
         
         print("PUT OPTIONS USING GREEKS")
-        change_in_spot_price = float(input("Enter the Estimated CHANGE in Spot Price of Underlying\n"))
-        change_in_volatility = float(input("Enter Change in % Volatility(+/-)\n")) / 100.0
         
         for d in database:
         	#print(d)
@@ -287,7 +344,7 @@ def put_greeks(database, fname):
         fname1 = fname[0: -4]
         file_name = "./" + fname1 + "_output.csv"
         df.to_csv(r'Graph//'+file_name, sep = ',', index = False)
-        option_type = fname[6:9]
+        #option_type = fname[6:9]
         #plot_output(file_name, option_type)
 
 def process_options(fname, init_spot):
@@ -319,28 +376,60 @@ def process_options(fname, init_spot):
 # print( * database, sep = "\n")
 
 if __name__ == "__main__":
+    files = []
+    files = get_files("Data")
+    print(files)
+    databases = []
+    #c_databases = []
+    #p_databases = []
+    for file in files:
+        db,otype = process_options(file , spotp)
+        databases.append(db)
     
-        plot_multiple()
-        """
-        fname1 = input("Enter File name\n")
-        spot_price = float(input("Enter Initial Spot Price\n"))
-        db3c = process_options(fname1, spot_price)# print(db3c)
-        option_type = input("Enter Option Type\n")
-        steps = int(input("Enter Number of Iterations\n"))
-        
-        if (option_type == "call"):
-        	it = 0
-        	while it < steps:
-        		call_greeks(db3c, fname1)
-        		it += 1
-        else :
-        	it = 0
-        	while it < steps:
-        		put_greeks(db3c, fname1)
-        		it += 1
-        """
-        
-        '''fname2 = "file3_put_options.csv "
+    change_in_spot_price = float(input("Enter the Estimated CHANGE in Spot Price of Underlying\n"))
+    change_in_volatility = float(input("Enter Change in % Volatility(+/-)\n")) / 100.0
+    
+    spotp += change_in_spot_price
+    volatility += change_in_volatility
+    
+    for d,f in zip(databases,files):
+        if f[5] == "c":
+            call_greeks(d , f , change_in_spot_price , change_in_volatility )
+        else:
+            put_greeks(d , f  , change_in_spot_price , change_in_volatility )
+    
+    
+    
+    plot_multiple(files )
+    
+    plot_init_final(files)
+    
+    
+    
+    
+    
+    
+    
+    """
+    fname1 = input("Enter File name\n")
+    spot_price = float(input("Enter Initial Spot Price\n"))
+    db3c = process_options(fname1, spot_price)# print(db3c)
+    option_type = input("Enter Option Type\n")
+    steps = int(input("Enter Number of Iterations\n"))
+    
+    if (option_type == "call"):
+    	it = 0
+    	while it < steps:
+    		call_greeks(db3c, fname1)
+    		it += 1
+    else :
+    	it = 0
+    	while it < steps:
+    		put_greeks(db3c, fname1)
+    		it += 1
+    """
+    
+    '''fname2 = "file3_put_options.csv "
 	db3f = process_options(fname2, 9095, 10, "put")
 	put_greeks(db3f, fname2)
 
