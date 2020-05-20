@@ -5,3 +5,7 @@ The Data Folder contains the input data of option contacts price snapshot for di
 The Graph folder contains the Output files for new premium vs strike price , and graphs of the same
 
 Before running the Code, make sure that Graph file is Empty.
+
+To Execute, be in the same folder as 'estimate_premium.py'.
+Run the command ' python estimate_premium.py'
+Make sure all imports are already installed
