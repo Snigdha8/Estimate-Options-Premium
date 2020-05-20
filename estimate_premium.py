@@ -419,11 +419,11 @@ if __name__ == "__main__":
     spotp += change_in_spot_price
     volatility += change_in_volatility
     
-    #Takeing input the day at which we want to get to know that price of Option Premium
+    #Taking input the day at which we want to get to know that price of Option Premium
     #It can be the expiry day or some other day before that
     rem_flag = int(input("Price at \n(1)-Expiry day \n(2)-Some Other day\n" ))
     if rem_flag == 2:
-        num_day = int(input("Please enter the Number of Day\n"))
+        num_day = int(input("Enter the Number of Days\n"))
     else:
         num_day = -1
 	#estimating 'new premium' for call and put options
@@ -434,7 +434,7 @@ if __name__ == "__main__":
             put_greeks(d , f  , change_in_spot_price , change_in_volatility , num_day )
     
     
-    # Plot the ouput graphs for call and put options together('new premium' vs 'strike price')
+    # Plot the output graphs for call and put options together('new premium' vs 'strike price')
     plot_multiple(files )
 	# Plot graphs for each output file for a comparison between initial curve and final curve of 'new premium' vs 'strike price'
     plot_init_final(files)
