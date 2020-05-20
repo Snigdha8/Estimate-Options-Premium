@@ -10,7 +10,7 @@ from datetime import date
 from recordtype import recordtype
 from scipy.interpolate import make_interp_spline, BSpline
 import matplotlib.pyplot as plt
-import pprint
+
 
 ###############
 
@@ -256,7 +256,7 @@ def plot_multiple(files):
         plt.show()   '''
 
 
-def call_greeks(database, fname , change_in_spot_price , change_in_volatility):
+def call_greeks(database, fname , change_in_spot_price , change_in_volatility , num_day):
         strike_list = []
         new_premium_list = []
         v = volatility
@@ -270,9 +270,11 @@ def call_greeks(database, fname , change_in_spot_price , change_in_volatility):
 		# Step 5: 'vega' for call options is calculated and 'vega effect' is calculated using this 'vega' and 'change in volatility'
         # Step 6: 'new premium' is calculated initially by effect of 'new delta' followed by effect of 'theta' and 'vega'
 		# Thus, 'gamma' is used to calculate 'new delta', and further 'new premium' is calculated with the effect of 'new delta', 'theta' and 'vega'
-		print("CALL OPTIONS USING GREEKS")
+        print("CALL OPTIONS USING GREEKS")
         for d in database:
             num_remaining_days = d.num_remaining_days
+            if num_day == -1:
+                num_day = num_remaining_days
             t = d.t
 			# Step 1:
             d.spot_price = d.spot_price + change_in_spot_price
@@ -293,8 +295,9 @@ def call_greeks(database, fname , change_in_spot_price , change_in_volatility):
             vega = c_vega(spot_price, int(float(d.strike_price)), t, v, 0.07)
             vega_effect = vega * change_in_volatility
         	# Step 6:
+            #print("In Theta, Numday = ",num_day)
             new_premium = int(float(d.old_premium)) + ((old_delta + new_delta) / 2.0) * change_in_spot_price# print("Old premium is ", d.old_premium)# print("(After Gamma effect) New premium is ", new_premium)
-            new_premium = new_premium + num_remaining_days * theta + vega_effect# addition cuz theta already has a negative value
+            new_premium = new_premium + num_day * theta + vega_effect# addition cuz theta already has a negative value
             if new_premium < 0:
                 new_premium = 0
         	
@@ -305,13 +308,13 @@ def call_greeks(database, fname , change_in_spot_price , change_in_volatility):
             new_premium_list.append(d.new_premium)
         
 		# generate the ouput file for call opions with 'strike price' and its corresponding 'new premium'
-        df = pd.DataFrame(data = {"strike_price": strike_list, "premium": new_premium_list})
+        df = pd.DataFrame(data = {"strike_price": strike_list, "new_premium": new_premium_list})
         fname1 = fname[0: -4]
         file_name =  "./"+fname1 + "_output.csv"
         df.to_csv(r'Graph//'+file_name, sep = ',', index = False)
         
 
-def put_greeks(database, fname , change_in_spot_price , change_in_volatility):
+def put_greeks(database, fname , change_in_spot_price , change_in_volatility , num_day):
 
         strike_list = []
         new_premium_list = []
@@ -321,40 +324,42 @@ def put_greeks(database, fname , change_in_spot_price , change_in_volatility):
         # Follow the same steps of 'call_greeks' to calculate new premium for put options. 
 		# But here the Greeks are calculated using greeks formulae for put options.
         for d in database:
-        	num_remaining_days = d.num_remaining_days
-        	t = d.t
+            num_remaining_days = d.num_remaining_days
+            if num_day == -1:
+                num_day = num_remaining_days
+            t = d.t
 			# Step 1:
-        	d.spot_price = d.spot_price + change_in_spot_price
-        	spot_price = d.spot_price
-        	v = v + change_in_volatility
+            d.spot_price = d.spot_price + change_in_spot_price
+            spot_price = d.spot_price
+            v = v + change_in_volatility
         	# Step 2:
-        	gamma = p_gamma(spot_price, int(float(d.strike_price)), t, v, 0.07)
-        	d.gamma = gamma
+            gamma = p_gamma(spot_price, int(float(d.strike_price)), t, v, 0.07)
+            d.gamma = gamma
 			# Step 3:
-        	old_delta = p_delta(spot_price, int(float(d.strike_price)), t, v, 0.07)
-        	d.old_delta = old_delta
-        	new_delta = old_delta + gamma * change_in_spot_price
-        	d.new_delta = new_delta
+            old_delta = p_delta(spot_price, int(float(d.strike_price)), t, v, 0.07)
+            d.old_delta = old_delta
+            new_delta = old_delta + gamma * change_in_spot_price
+            d.new_delta = new_delta
         	# Step 4:
-        	theta = p_theta(spot_price, int(float(d.strike_price)), t, v, 0.07)# print("Theta is ", theta)
-        	d.theta = theta
+            theta = p_theta(spot_price, int(float(d.strike_price)), t, v, 0.07)# print("Theta is ", theta)
+            d.theta = theta
         	# Step 5:
-        	vega = c_vega(spot_price, int(float(d.strike_price)), t, v, 0.07)
-        	vega_effect = vega * change_in_volatility
+            vega = c_vega(spot_price, int(float(d.strike_price)), t, v, 0.07)
+            vega_effect = vega * change_in_volatility
         	# Step 6:
-        	new_premium = int(float(d.old_premium)) + ((old_delta + new_delta) / 2.0) * change_in_spot_price
-        	new_premium = new_premium + num_remaining_days * theta + vega_effect# addition cuz theta already has a negative value
+            new_premium = int(float(d.old_premium)) + ((old_delta + new_delta) / 2.0) * change_in_spot_price
+            new_premium = new_premium + num_day * theta + vega_effect# addition cuz theta already has a negative value
         	
-        	if new_premium < 0:
-        		new_premium = 0
-				
-        	d.new_premium = new_premium
+            if new_premium < 0:
+                new_premium = 0
+            
+            d.new_premium = new_premium
 			# remaining values are added to the database
-        	strike_list.append(d.strike_price)
-        	new_premium_list.append(d.new_premium)
+            strike_list.append(d.strike_price)
+            new_premium_list.append(d.new_premium)
         
 		# generate the ouput file for put options with 'strike price' and its corresponding 'new premium'
-        df = pd.DataFrame(data = {"strike_price": strike_list, "premium": new_premium_list})
+        df = pd.DataFrame(data = {"strike_price": strike_list, "new_premium": new_premium_list})
         fname1 = fname[0: -4]
         file_name = "./" + fname1 + "_output.csv"
         df.to_csv(r'Graph//'+file_name, sep = ',', index = False)
@@ -414,12 +419,19 @@ if __name__ == "__main__":
     spotp += change_in_spot_price
     volatility += change_in_volatility
     
+    #Takeing input the day at which we want to get to know that price of Option Premium
+    #It can be the expiry day or some other day before that
+    rem_flag = int(input("Price at \n(1)-Expiry day \n(2)-Some Other day\n" ))
+    if rem_flag == 2:
+        num_day = int(input("Please enter the Number of Day\n"))
+    else:
+        num_day = -1
 	#estimating 'new premium' for call and put options
     for d,f in zip(databases,files):
         if f[5] == "c":
-            call_greeks(d , f , change_in_spot_price , change_in_volatility )
+            call_greeks(d , f , change_in_spot_price , change_in_volatility , num_day )
         else:
-            put_greeks(d , f  , change_in_spot_price , change_in_volatility )
+            put_greeks(d , f  , change_in_spot_price , change_in_volatility , num_day )
     
     
     # Plot the ouput graphs for call and put options together('new premium' vs 'strike price')
