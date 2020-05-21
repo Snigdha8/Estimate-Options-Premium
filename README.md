@@ -1,7 +1,29 @@
 ## Estimate-Options-Premium
-There are call options with different strike price and their corresponding premium and moneyness for different time intervals
-from the current date till the expiry date. Similarly, there are put options. 
 
+This Code was made in Anaconda-Spyder, so while running in Ubuntu there may be some indentation error.<br/>
+
+To run this code, keep all the Files and Folders in the Same Folder<br/>
+The Data Folder contains the input data of option contacts price snapshot for different expiry dates for NIFTY<br/>
+The Graph folder contains the Output files for new premium vs strike price , and graphs of the same<br/>
+
+Before running the Code, make sure that Graph file is Empty.<br/>
+
+To Execute, be in the same folder as 'estimate_premium.py'.<br/>
+Run the command ' python estimate_premium.py'<br/>
+Make sure all imports are already installed<br/>
+
+There are call options with different strike price and their corresponding premium and moneyness for different time intervals
+from the current date till the expiry date. Similarly, there are put options. <br/>
+
+**About input files:**<br/>
+We have taken the option chain data from 'NSE Option Chain(Equity Derivatives)' for NIFTY and symbol 'ACC': https://www.nseindia.com/option-chain <br/>
+Data from <br/>
+Current date : 20-05-2020<br/>
+till <br/>
+Expiry dates: 28-05-2020, 04-06-2020, 11-06-2020 and 18-06-2020 <br/>
+<br/>
+for strike prices 8000 to 11000<br/>
+<br/>
 - **Inputs:**
 1. _User inputs:_<br/>
 Initial Volaitilty %<br/>
