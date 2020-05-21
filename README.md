@@ -1,4 +1,4 @@
-## Options-Pricing
+## Estimate-Options-Premium
 There are call options with different strike price and their corresponding premium and moneyness for different time intervals
 from the current date till the expiry date. Similarly, there are put options. 
 
