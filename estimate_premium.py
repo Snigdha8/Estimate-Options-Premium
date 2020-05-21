@@ -274,7 +274,7 @@ def call_greeks(database, fname , change_in_spot_price , change_in_volatility , 
         for d in database:
             num_remaining_days = d.num_remaining_days
             if user_date != "":
-                num_day = calculate_t(user_date, d.expiry_date)
+                num_day = calculate_t(d.current_date, user_date)
 			else:
 				num_day = num_remaining_days
             t = d.t
@@ -328,7 +328,7 @@ def put_greeks(database, fname , change_in_spot_price , change_in_volatility , u
         for d in database:
             num_remaining_days = d.num_remaining_days
             if user_date != "":
-                num_day = calculate_t(user_date, d.expiry_date)
+                num_day = calculate_t(d.current_date, user_date)
 			else:
 				num_day = num_remaining_days
             t = d.t
@@ -427,7 +427,7 @@ if __name__ == "__main__":
     # Or Choice 2: The user can enter a date before the expiry date to know the price of the premium 
     rem_flag = int(input("Enter your choice : \n(1)-Expiry day \n(2)-Some Other day\n" ))
     if rem_flag == 2:
-        user_date = int(input("Enter the date for which you want to know the price of premium\n"))
+        user_date = input("Enter the date for which you want to know the price of premium\n")
     else:
         user_date = ""
 
