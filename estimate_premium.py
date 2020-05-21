@@ -256,7 +256,7 @@ def plot_multiple(files):
         plt.show()   '''
 
 
-def call_greeks(database, fname , change_in_spot_price , change_in_volatility , num_day):
+def call_greeks(database, fname , change_in_spot_price , change_in_volatility , user_date):
         strike_list = []
         new_premium_list = []
         v = volatility
@@ -273,8 +273,10 @@ def call_greeks(database, fname , change_in_spot_price , change_in_volatility , 
         print("CALL OPTIONS USING GREEKS")
         for d in database:
             num_remaining_days = d.num_remaining_days
-            if num_day == -1:
-                num_day = num_remaining_days
+            if user_date != "":
+                num_day = calculate_t(user_date, d.expiry_date)
+			else:
+				num_day = num_remaining_days
             t = d.t
 			# Step 1:
             d.spot_price = d.spot_price + change_in_spot_price
@@ -314,7 +316,7 @@ def call_greeks(database, fname , change_in_spot_price , change_in_volatility , 
         df.to_csv(r'Graph//'+file_name, sep = ',', index = False)
         
 
-def put_greeks(database, fname , change_in_spot_price , change_in_volatility , num_day):
+def put_greeks(database, fname , change_in_spot_price , change_in_volatility , user_date):
 
         strike_list = []
         new_premium_list = []
@@ -325,8 +327,10 @@ def put_greeks(database, fname , change_in_spot_price , change_in_volatility , n
 		# But here the Greeks are calculated using greeks formulae for put options.
         for d in database:
             num_remaining_days = d.num_remaining_days
-            if num_day == -1:
-                num_day = num_remaining_days
+            if user_date != "":
+                num_day = calculate_t(user_date, d.expiry_date)
+			else:
+				num_day = num_remaining_days
             t = d.t
 			# Step 1:
             d.spot_price = d.spot_price + change_in_spot_price
@@ -419,23 +423,24 @@ if __name__ == "__main__":
     spotp += change_in_spot_price
     volatility += change_in_volatility
     
-    #Taking input the day at which we want to get to know the price of Option Premium
-    #It can be the expiry day or some other day before that
-    rem_flag = int(input("Price at \n(1)-Expiry day \n(2)-Some Other day\n" ))
+	# Choice 1: User can go for expiry date if he wants to know the premium on the date of expiry
+    # Or Choice 2: The user can enter a date before the expiry date to know the price of the premium 
+    rem_flag = int(input("Enter your choice : \n(1)-Expiry day \n(2)-Some Other day\n" ))
     if rem_flag == 2:
-        num_day = int(input("Enter the Number of Days\n"))
+        user_date = int(input("Enter the date for which you want to know the price of premium\n"))
     else:
-        num_day = -1
+        user_date = ""
+
 	#estimating 'new premium' for call and put options
     for d,f in zip(databases,files):
         if f[5] == "c":
-            call_greeks(d , f , change_in_spot_price , change_in_volatility , num_day )
+            call_greeks(d , f , change_in_spot_price , change_in_volatility , user_date )
         else:
-            put_greeks(d , f  , change_in_spot_price , change_in_volatility , num_day )
+            put_greeks(d , f  , change_in_spot_price , change_in_volatility , user_date )
     
     
     # Plot the output graphs for call and put options together('new premium' vs 'strike price')
-    plot_multiple(files )
+    plot_multiple(files)
 	# Plot graphs for each output file for a comparison between initial curve and final curve of 'new premium' vs 'strike price'
     plot_init_final(files)
 	
