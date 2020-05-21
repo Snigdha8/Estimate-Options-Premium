@@ -414,12 +414,11 @@ if __name__ == "__main__":
     
     change_in_spot_price = float(input("Enter the Estimated CHANGE in Spot Price of Underlying\n"))
     change_in_volatility = float(input("Enter Change in % Volatility(+/-)\n")) / 100.0
-    
-	#Initial 'spot price' and 'volatility' entered by the user are updated after obtaining change in spot price and volatility respectively.
+    	
     spotp += change_in_spot_price
     volatility += change_in_volatility
     
-    #Taking input the day at which we want to get to know that price of Option Premium
+    #Taking input the day at which we want to get to know the price of Option Premium
     #It can be the expiry day or some other day before that
     rem_flag = int(input("Price at \n(1)-Expiry day \n(2)-Some Other day\n" ))
     if rem_flag == 2:
