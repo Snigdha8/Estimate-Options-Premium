@@ -147,7 +147,7 @@ def plot_init_final(files):
             fig.suptitle(f, fontsize=16)
             plt.xlabel('strike price', fontsize = 14)
             plt.ylabel('new premium', fontsize = 14)
-            fig.savefig('Graph//'+f +'Before-After' + '.jpg')
+            fig.savefig('Graph//'+f[0:-4] +'-Before-After' + '.jpg')
         
         else:   # For put options for each expiry date plot initial and final curve together:
             fig = plt.figure()
@@ -172,7 +172,7 @@ def plot_init_final(files):
             fig.suptitle(f, fontsize=16)
             plt.xlabel('strike price', fontsize = 14)
             plt.ylabel('new premium', fontsize = 14)
-            fig.savefig('Graph//'+f +'Before-After' + '.jpg')
+            fig.savefig('Graph//'+f[:-4] +'-Before-After' + '.jpg')
         
         
         
@@ -414,7 +414,8 @@ if __name__ == "__main__":
     
     change_in_spot_price = float(input("Enter the Estimated CHANGE in Spot Price of Underlying\n"))
     change_in_volatility = float(input("Enter Change in % Volatility(+/-)\n")) / 100.0
-    	
+    
+    #Updating the golbal Spot Price and Volatility values 	
     spotp += change_in_spot_price
     volatility += change_in_volatility
     
