@@ -127,6 +127,7 @@ def plot_init_final(files):
         # For call options for each expiry date plot initial and final curve together:
         if pf[5] == "c":
             fig = plt.figure()
+            plt.plot([spot_price , spot_price ] , [0 , 2000] , 'b' )
 			# plotting initial curve
             for x1, x2, y1, y2 in zip(ix, ix[1: ], iy, iy[1: ]):
             	if x1 > spot_price:
@@ -152,6 +153,7 @@ def plot_init_final(files):
         else:   # For put options for each expiry date plot initial and final curve together:
             fig = plt.figure()
 			# plotting initial curve
+            plt.plot([spot_price , spot_price ] , [0 , 2000] , 'b' )
             for x1, x2, y1, y2 in zip(ix, ix[1: ], iy, iy[1: ]):
                 if x1 > spot_price:
                     plt.plot([x1, x2], [y1, y2], 'c',linestyle = '--')
@@ -194,8 +196,9 @@ def plot_multiple(files):
         graph_data.append([x,y])
         #fig = plt.figure()
         #print(spot_price)
-        
+        plt.suptitle("Changes in All Graphs")
         if pf[5] == "c":      	#call options output
+            plt.plot([spot_price , spot_price ] , [0 , 2500] , 'b' )
             for x1, x2, y1, y2 in zip(x, x[1: ], y, y[1: ]):
             	if x1 > spot_price:
             		plt.plot([x1, x2], [y1, y2], 'r', linestyle = '--')
@@ -204,13 +207,14 @@ def plot_multiple(files):
             	else:
             		plt.plot([x1, x2], [y1, y2], 'b', marker = '.' )
         else:					#put options output	
-        	for x1, x2, y1, y2 in zip(x, x[1: ], y, y[1: ]):
-        		if x1 > spot_price:
-        			plt.plot([x1, x2], [y1, y2], 'c',linestyle = '-')
-        		elif x1 < spot_price:
-        			plt.plot([x1, x2], [y1, y2], 'y',linestyle = '-')
-        		else:
-        			plt.plot([x1, x2], [y1, y2], 'b', marker = 'o')
+            plt.plot([spot_price , spot_price ] , [0 , 2000] , 'b' )
+            for x1, x2, y1, y2 in zip(x, x[1: ], y, y[1: ]):
+                if x1 > spot_price:
+                    plt.plot([x1, x2], [y1, y2], 'c',linestyle = '-')
+                elif x1 < spot_price:
+                    plt.plot([x1, x2], [y1, y2], 'y',linestyle = '-')
+                else:
+                    plt.plot([x1, x2], [y1, y2], 'b', marker = 'o')
                     
         plt.xlabel('strike price', fontsize = 14)
         plt.ylabel('new premium', fontsize = 14)
@@ -259,6 +263,12 @@ def plot_multiple(files):
 def call_greeks(database, fname , change_in_spot_price , change_in_volatility , user_date):
         strike_list = []
         new_premium_list = []
+        old_premium_list = []
+        change_list = []
+        curr_date_list = []
+        user_date_list = []
+        expiry_date_list = []
+        
         v = volatility
         
 		# All greeks are calculated using greeks formulae for call options.
@@ -275,13 +285,16 @@ def call_greeks(database, fname , change_in_spot_price , change_in_volatility , 
             num_remaining_days = d.num_remaining_days
             if user_date != "":
                 num_day = calculate_t(d.current_date, user_date)
-			else:
-				num_day = num_remaining_days
+            else:
+                num_day = num_remaining_days
             t = d.t
 			# Step 1:
             d.spot_price = d.spot_price + change_in_spot_price
             spot_price = d.spot_price
             v = v + change_in_volatility
+            
+            old_premium_list.append(d.old_premium)
+            
             # Step 2:
             gamma = c_gamma(spot_price, int(float(d.strike_price)), t, v, 0.07)
             d.gamma = gamma# print("Gamma is ", gamma)
@@ -308,9 +321,14 @@ def call_greeks(database, fname , change_in_spot_price , change_in_volatility , 
 			# remaining values are added to the database
             strike_list.append(d.strike_price)
             new_premium_list.append(d.new_premium)
+            curr_date_list.append(d.current_date)
+            user_date_list.append(user_date)
+            change = float(d.new_premium)-float(d.old_premium)  
+            change_list.append(change)
+            expiry_date_list.append(d.expiry_date)
         
-		# generate the ouput file for call opions with 'strike price' and its corresponding 'new premium'
-        df = pd.DataFrame(data = {"strike_price": strike_list, "new_premium": new_premium_list})
+		# generate the ouput file for call opions with 'strike price' and its corresponding 'new premium','old premium' , 'net change' , 'current date' , 'date of new premium',  'expiry_date'.
+        df = pd.DataFrame(data = {"strike_price": strike_list, "new_premium": new_premium_list ,"Old Premium":old_premium_list ,"Change":change_list , "current_date":curr_date_list , "Date of New Premium":user_date_list , "Expiry Date":expiry_date_list })
         fname1 = fname[0: -4]
         file_name =  "./"+fname1 + "_output.csv"
         df.to_csv(r'Graph//'+file_name, sep = ',', index = False)
@@ -320,6 +338,12 @@ def put_greeks(database, fname , change_in_spot_price , change_in_volatility , u
 
         strike_list = []
         new_premium_list = []
+        old_premium_list = []
+        change_list = []
+        curr_date_list = []
+        user_date_list = []
+        expiry_date_list = []
+        
         v = volatility
         
         print("PUT OPTIONS USING GREEKS")
@@ -329,13 +353,15 @@ def put_greeks(database, fname , change_in_spot_price , change_in_volatility , u
             num_remaining_days = d.num_remaining_days
             if user_date != "":
                 num_day = calculate_t(d.current_date, user_date)
-			else:
-				num_day = num_remaining_days
+            else:
+                num_day = num_remaining_days
             t = d.t
 			# Step 1:
             d.spot_price = d.spot_price + change_in_spot_price
             spot_price = d.spot_price
             v = v + change_in_volatility
+            
+            old_premium_list.append(d.old_premium)
         	# Step 2:
             gamma = p_gamma(spot_price, int(float(d.strike_price)), t, v, 0.07)
             d.gamma = gamma
@@ -361,9 +387,15 @@ def put_greeks(database, fname , change_in_spot_price , change_in_volatility , u
 			# remaining values are added to the database
             strike_list.append(d.strike_price)
             new_premium_list.append(d.new_premium)
+            curr_date_list.append(d.current_date)
+            user_date_list.append(user_date)
+            change = float(d.new_premium)-float(d.old_premium)  
+            change_list.append(change)
+            expiry_date_list.append(d.expiry_date)
         
-		# generate the ouput file for put options with 'strike price' and its corresponding 'new premium'
-        df = pd.DataFrame(data = {"strike_price": strike_list, "new_premium": new_premium_list})
+        
+		# generate the ouput file for put options with 'strike price' and its corresponding 'new premium','old premium' , 'net change' , 'current date' , 'date of new premium',  'expiry_date'.
+        df = pd.DataFrame(data = {"strike_price": strike_list, "new_premium": new_premium_list ,"Old Premium":old_premium_list ,"Change":change_list , "current_date":curr_date_list , "Date of New Premium":user_date_list , "Expiry Date":expiry_date_list })
         fname1 = fname[0: -4]
         file_name = "./" + fname1 + "_output.csv"
         df.to_csv(r'Graph//'+file_name, sep = ',', index = False)
@@ -427,7 +459,7 @@ if __name__ == "__main__":
     # Or Choice 2: The user can enter a date before the expiry date to know the price of the premium 
     rem_flag = int(input("Enter your choice : \n(1)-Expiry day \n(2)-Some Other day\n" ))
     if rem_flag == 2:
-        user_date = input("Enter the date for which you want to know the price of premium\n")
+        user_date = input("Enter the date for which you want to know the price of premium\nCurrent Date is (20-05-2020)\n")
     else:
         user_date = ""
 
