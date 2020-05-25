@@ -10,6 +10,8 @@ from datetime import date
 from recordtype import recordtype
 from scipy.interpolate import make_interp_spline, BSpline
 import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error
+
 
 
 ###############
@@ -20,7 +22,7 @@ def get_files(folder):
     return files
 
 volatility = float(input("Initial Volaitilty %")) / 100.0
-spotp = float(input("Initial Spot Price\n"))
+spotp = 9066.55#float(input("Initial Spot Price\n"))
 #print(spotp)
 
 
@@ -221,7 +223,28 @@ def plot_multiple(files):
         plt.savefig('Graph//'+pf + '.jpg')
         
             
+def calculate_rmse():
+    estimate_files = get_files("Graph")
+    estimate_files = filter(lambda x: x[-4:]==".csv" , estimate_files)
+    #print(list(estimate_files))
+    
+    actual_files = get_files("Actual_Data")
+    #print(actual_files)
+    
+    for af,ef in zip(actual_files , estimate_files):
+        df = pd.read_csv("Actual_Data//"+af , usecols = ['premium'])
+        x = df.as_matrix()
+        actual_data = x.astype(np.float)
+        #print(actual_data)
         
+        df = pd.read_csv("Graph//"+ef, usecols = ['new_premium'])
+        x = df.as_matrix()
+        estimated_data = x.astype(np.float)
+        #print(estimated_data)
+        
+        rmse = sqrt(mean_squared_error(actual_data, estimated_data))
+        print(rmse)
+         
 
 '''def plot_output(file_name, option_type):
         spot_price = 9100
@@ -448,7 +471,7 @@ if __name__ == "__main__":
         db,otype = process_options(file , spotp)
         databases.append(db)
     
-    change_in_spot_price = float(input("Enter the Estimated CHANGE in Spot Price of Underlying\n"))
+    change_in_spot_price = 27#float(input("Enter the Estimated CHANGE in Spot Price of Underlying\n"))
     change_in_volatility = float(input("Enter Change in % Volatility(+/-)\n")) / 100.0
     
     #Updating the golbal Spot Price and Volatility values 	
@@ -457,9 +480,9 @@ if __name__ == "__main__":
     
 	# Choice 1: User can go for expiry date if he wants to know the premium on the date of expiry
     # Or Choice 2: The user can enter a date before the expiry date to know the price of the premium 
-    rem_flag = int(input("Enter your choice : \n(1)-Expiry day \n(2)-Some Other day\n" ))
+    rem_flag = 2#int(input("Enter your choice : \n(1)-Expiry day \n(2)-Some Other day\n" ))
     if rem_flag == 2:
-        user_date = input("Enter the date for which you want to know the price of premium\nCurrent Date is (20-05-2020)\n")
+        user_date = "22-05-2020"#input("Enter the date for which you want to know the price of premium\nCurrent Date is (20-05-2020)\n")
     else:
         user_date = ""
 
@@ -475,7 +498,7 @@ if __name__ == "__main__":
     plot_multiple(files)
 	# Plot graphs for each output file for a comparison between initial curve and final curve of 'new premium' vs 'strike price'
     plot_init_final(files)
-	
+    calculate_rmse()
 	
 	
 	
