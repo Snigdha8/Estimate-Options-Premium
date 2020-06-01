@@ -22,7 +22,7 @@ def get_files(folder):
     return files
 
 volatility = float(input("Initial Volaitilty %")) / 100.0
-spotp = 9066.55#float(input("Initial Spot Price\n"))
+spotp = float(input("Initial Spot Price\n"))
 #print(spotp)
 
 
@@ -178,6 +178,96 @@ def plot_init_final(files):
             plt.ylabel('new premium', fontsize = 14)
             fig.savefig('Graph//'+f[:-4] +'-Before-After' + '.jpg')
         
+
+#To Plot only Calls
+def plot_calls(files):
+    calls = list(filter(lambda x: x[5]=="c", files))
+    fig1 = plt.figure(1)
+    plt.plot([spotp , spotp ] , [0 , 2000] , 'b' )
+        
+    for f in calls:
+        df = pd.read_csv('Data//'+f ,sep = ',', header = None, skiprows = 1)
+        before_matrix = df.as_matrix()
+        x = before_matrix[:,0] # Strike Price
+        y = before_matrix[:,1] #Premium
+        expiry = list(before_matrix[:3,3])
+        #print(expiry)
+        plt.plot(x,y,label=expiry[0])
+    fig1.suptitle("Calls Before", fontsize=16)
+    plt.xlabel('Strike Price', fontsize = 14)
+    plt.ylabel('Premium', fontsize = 14)
+    plt.legend()
+    plt.show()
+    fig1.savefig('Graph//Plot_Calls_1Before' + '.jpg')
+    plot_call_after()
+
+        
+def plot_call_after():
+    call_f = get_files("Graph")
+    call_files = list(filter(lambda x: x[5]=="c" and x[-4:]==".csv", call_f))
+    fig2 = plt.figure(2)
+    plt.plot([spotp , spotp ] , [0 , 2000] , 'b' )
+        
+    for cf in call_files:
+        df = pd.read_csv('Graph//'+cf ,sep = ',', header = None, skiprows = 1)
+        before_matrix = df.as_matrix()
+        x = before_matrix[:,0] # Strike Price
+        y = before_matrix[:,1] #Premium
+        expiry = list(before_matrix[:6,6])
+        #print(expiry)
+        plt.plot(x,y,label=expiry[0])
+    fig2.suptitle("Calls After", fontsize=16)
+    plt.xlabel('Strike Price', fontsize = 14)
+    plt.ylabel('Premium', fontsize = 14)
+    plt.legend()
+    plt.show()
+    fig2.savefig('Graph//Plot_Calls_2After' + '.jpg')    
+        
+#plot put
+def plot_puts(files):
+    puts = list(filter(lambda x: x[5]=="p", files))
+    fig1 = plt.figure(3)
+    plt.plot([spotp , spotp ] , [0 , 2000] , 'b' )
+        
+    for f in puts:
+        df = pd.read_csv('Data//'+f ,sep = ',', header = None, skiprows = 1)
+        before_matrix = df.as_matrix()
+        x = before_matrix[:,0] # Strike Price
+        y = before_matrix[:,1] #Premium
+        expiry = list(before_matrix[:3,3])
+        #print(expiry)
+        plt.plot(x,y,label=expiry[0])
+    fig1.suptitle("Puts Before", fontsize=16)
+    plt.xlabel('Strike Price', fontsize = 14)
+    plt.ylabel('Premium', fontsize = 14)
+    plt.legend()
+    plt.show()
+    fig1.savefig('Graph//Plot_Puts_1Before' + '.jpg')
+    plot_put_after()
+
+        
+def plot_put_after():
+    put_f = get_files("Graph")
+    put_files = list(filter(lambda x: x[5]=="p" and x[-4:]==".csv", put_f))
+    fig2 = plt.figure(4)
+    plt.plot([spotp , spotp ] , [0 , 2000] , 'b' )
+        
+    for pf in put_files:
+        df = pd.read_csv('Graph//'+pf ,sep = ',', header = None, skiprows = 1)
+        before_matrix = df.as_matrix()
+        x = before_matrix[:,0] # Strike Price
+        y = before_matrix[:,1] #Premium
+        expiry = list(before_matrix[:6,6])
+        #print(expiry)
+        plt.plot(x,y,label=expiry[0])
+    fig2.suptitle("Puts After", fontsize=16)
+    plt.xlabel('Strike Price', fontsize = 14)
+    plt.ylabel('Premium', fontsize = 14)
+    plt.legend()
+    plt.show()
+    fig2.savefig('Graph//Plot_Puts_2After' + '.jpg')        
+        
+    
         
         
 # Plot graphs for call options and put options together so as to compare the 'new premium' for different expiry dates for both options
@@ -203,9 +293,9 @@ def plot_multiple(files):
             plt.plot([spot_price , spot_price ] , [0 , 2500] , 'b' )
             for x1, x2, y1, y2 in zip(x, x[1: ], y, y[1: ]):
             	if x1 > spot_price:
-            		plt.plot([x1, x2], [y1, y2], 'r', linestyle = '--')
+            		plt.plot([x1, x2], [y1, y2], 'r', linestyle = '-')
             	elif x1 < spot_price:
-            		plt.plot([x1, x2], [y1, y2], 'g' , linestyle = '--' )
+            		plt.plot([x1, x2], [y1, y2], 'g' , linestyle = '-' )
             	else:
             		plt.plot([x1, x2], [y1, y2], 'b', marker = '.' )
         else:					#put options output	
@@ -462,7 +552,7 @@ if __name__ == "__main__":
     files = []
     files = get_files("Data")
     print(files)
-	
+    
 	#'databases' stores the data of all the files
     databases = []
 	
@@ -471,7 +561,7 @@ if __name__ == "__main__":
         db,otype = process_options(file , spotp)
         databases.append(db)
     
-    change_in_spot_price = 27#float(input("Enter the Estimated CHANGE in Spot Price of Underlying\n"))
+    change_in_spot_price = float(input("Enter the Estimated CHANGE in Spot Price of Underlying\n"))
     change_in_volatility = float(input("Enter Change in % Volatility(+/-)\n")) / 100.0
     
     #Updating the golbal Spot Price and Volatility values 	
@@ -480,9 +570,9 @@ if __name__ == "__main__":
     
 	# Choice 1: User can go for expiry date if he wants to know the premium on the date of expiry
     # Or Choice 2: The user can enter a date before the expiry date to know the price of the premium 
-    rem_flag = 2#int(input("Enter your choice : \n(1)-Expiry day \n(2)-Some Other day\n" ))
+    rem_flag = int(input("Enter your choice : \n(1)-Expiry day \n(2)-Some Other day\n" ))
     if rem_flag == 2:
-        user_date = "22-05-2020"#input("Enter the date for which you want to know the price of premium\nCurrent Date is (20-05-2020)\n")
+        user_date = input("Enter the date for which you want to know the price of premium\nCurrent Date is (20-05-2020)\n")
     else:
         user_date = ""
 
@@ -500,6 +590,8 @@ if __name__ == "__main__":
     plot_init_final(files)
     calculate_rmse()
 	
+    plot_calls(files)
+    plot_puts(files)
 	
 	
 	
