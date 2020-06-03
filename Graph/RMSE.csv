@@ -1,0 +1,9 @@
+File Name,Actual Price file,RMSE
+file1c_output.csv,file1c_actual.csv,18.680800104292324
+file1p_output.csv,file1p_actual.csv,57.032361122893015
+file2c_output.csv,file2c_actual.csv,108.58706378073698
+file2p_output.csv,file2p_actual.csv,125.7989705358934
+file3c_output.csv,file3c_actual.csv,153.75700068079377
+file3p_output.csv,file3p_actual.csv,206.59592784575202
+file4c_output.csv,file4c_actual.csv,220.56137033572344
+file4p_output.csv,file4p_actual.csv,127.29379403155141

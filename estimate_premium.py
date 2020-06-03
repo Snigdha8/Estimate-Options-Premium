@@ -315,12 +315,12 @@ def plot_multiple(files):
             
 def calculate_rmse():
     estimate_files = get_files("Graph")
-    estimate_files = filter(lambda x: x[-4:]==".csv" , estimate_files)
+    estimate_files = list(filter(lambda x: x[-4:]==".csv" , estimate_files))
     #print(list(estimate_files))
     
     actual_files = get_files("Actual_Data")
     #print(actual_files)
-    
+    rmse_list = []
     for af,ef in zip(actual_files , estimate_files):
         df = pd.read_csv("Actual_Data//"+af , usecols = ['premium'])
         x = df.as_matrix()
@@ -333,7 +333,11 @@ def calculate_rmse():
         #print(estimated_data)
         
         rmse = sqrt(mean_squared_error(actual_data, estimated_data))
-        print(rmse)
+        #print(rmse)
+        rmse_list.append(rmse)
+    df = pd.DataFrame(data = {"File Name": estimate_files , "Actual Price file": actual_files ,"RMSE":rmse_list})
+    df.to_csv(r'Graph//RMSE', sep = ',', index = False)
+    return rmse_list
          
 
 '''def plot_output(file_name, option_type):
@@ -588,10 +592,11 @@ if __name__ == "__main__":
     plot_multiple(files)
 	# Plot graphs for each output file for a comparison between initial curve and final curve of 'new premium' vs 'strike price'
     plot_init_final(files)
-    calculate_rmse()
+    rmse = calculate_rmse()
+    print(rmse)
 	
-    plot_calls(files)
+    """plot_calls(files)
     plot_puts(files)
-	
+	"""
 	
 	
